@@ -3,11 +3,13 @@ layout: post
 title: Sup?
 ---
 
-In this post I'm going to show you how I use [sup][] to manage multiple
+In this post I'm going to show you how I use [sup] to manage multiple
 emails, along side other devices.
 
 *Note*: This is my very first long-ish technical article. Apologies if
-it gets hard to follow.
+it gets hard to follow. I'm writing this partly as a guide for myself if
+I ever need to set sup up from scratch again. You're welcome, future me
+(please don't be upset).
 
 [sup]: http://supmua.org/
 
@@ -21,7 +23,8 @@ How I Use Email
 - I often use email on my phone, which means changes need to appear on
   all clients.
 - I prefer emails to be threaded into a single view conversation, if possible.
-- I sometimes triage using labels.
+- I sometimes triage using labels, and mail stays in the inbox until I'm
+  finished with it.
 - I don't organize mail into folders.
 - Once done with an email thread, I archive it.
 - I do not delete emails, so everything is archived and searchable.
@@ -62,16 +65,20 @@ if you want.
 
 To get OAuth2 working, first we need to register an app with Google to
 use their API. Don't worry, it's free, just don't give your tokens out
-to other people (just in case). Head over to Google's [Developers Console][]
+to other people (just in case). Head over to Google's [Developers Console]
 and create a new project. Select that project, and on the left go to
 Settings > Rename project. Just give it some name you fancy.
 
 Afterwards, go to APIs & auth > Credentials. Make note of the *Client ID*
-and *Client Secret*. You'll need those for your configurations. Now we need
-to authorize this app to manage your email. Easiest way is to follow
-[this guide][]. Here's the summary:
+and *Client Secret*. You'll need those for your configurations.
 
-1. Download [oauth2.py][]
+### Authorizing your "app"
+
+Now we need to authorize this app to manage your email. The easiest way
+is to follow [this guide] for each email you need access to. Here's the
+summary:
+
+1. Download [oauth2.py]
 2. Then, execute this and follow the directions:
 
         $ python oauth2.py --generate_oauth2_token \
@@ -97,7 +104,7 @@ keep our email in sync.
 
 ### Installing
 
-Since I require the use of OAuth2, I have a branch of [OfflineIMAP][]
+Since I require the use of OAuth2, I have a branch of [OfflineIMAP]
 going you can use until it is merged into master. If you don't need
 OAuth2, just install it through your package manager.
 
@@ -105,6 +112,8 @@ OAuth2, just install it through your package manager.
     cd offlineimap
     git checkout gmail-oauth
     python setup.py install
+
+Also, go ahead and make sure you've got `sqlite` installed: `brew install sqlite`
 
 [OfflineIMAP]: https://github.com/cscorley/offlineimap/tree/gmail-oauth
 
@@ -146,7 +155,7 @@ another guide.
     sslcacertfile = /usr/local/opt/curl-ca-bundle/share/ca-bundle.crt
     realdelete = no
     nametrans = lambda folder: {
-                                '[Gmail]/All Mail':  'archive'
+                                '[Gmail]/All Mail': 'archive'
                                 }.get(folder, folder)
 
     folderfilter = lambda folder: folder not in ['[Gmail]/Trash',
@@ -174,9 +183,8 @@ another guide.
     sslcacertfile = /usr/local/opt/curl-ca-bundle/share/ca-bundle.crt
     realdelete = no
     nametrans = lambda folder: {
-                                '[Gmail]/All Mail':  'archive'
+                                '[Gmail]/All Mail': 'archive'
                                 }.get(folder, folder)
-
 
     folderfilter = lambda folder: folder not in ['[Gmail]/Trash',
                                                 '[Gmail]/Important',
@@ -193,8 +201,9 @@ important to us. When we send a mail, Gmail will save it to Sent Mail
 
 Another point of interest is the `sslcacertfile=` field on both remote
 Repositories. OS X doesn't come with one handy, so install the
-curl-ca-bundle package from homebrew: `brew install curl-ca-bundle`.
-On Arch Linux, it should be in the `ca-certificates` package (I think).
+curl-ca-bundle package from homebrew: `brew install curl-ca-bundle`. On
+Arch Linux, `ca-certificates` serves as a similar package should be
+located at `/etc/ssl/certs/ca-certificates.crt` (I think).
 
 Finally, OAuth2! Under each remote, put your client id, client secret,
 and refresh token. Boom, done.
@@ -212,16 +221,18 @@ new mail.
 Sending email
 -------------
 
-Ahhhhh, sending email. What good is email if we can't annoy people with it?
-I haven't found a client that seemed easy enough for me to extend OAuth2
-into, and really I didn't have to. Python has `smtplib` and it handles
-just about everything for me anyway.
+Ahhhhh, sending email. What good is email if we can't annoy people with
+it? I haven't found an SMTP client that seemed easy enough for me to
+extend OAuth2 into, and really I didn't have to. Python has `smtplib`
+and it handles just about everything for me anyway. There is a way to
+have sup send mail for you using hooks, but I can't be arsed to learn
+Ruby well enough to provide that right now.
 
 ### Installing
 
-Download a copy of my [send.py][] if you're using OAuth2 and stick it
+Download a copy of my [send.py] if you're using OAuth2 and stick it
 somewhere in your `$PATH` (I recommend `~/bin`). Password users can
-install something like [msmtp][].
+install something like [msmtp].
 
     mkdir -p ~/bin
     wget https://raw.github.com/cscorley/send.py/master/send.py -O ~/bin/send.py
@@ -267,8 +278,8 @@ in your id, secret, and token and bust an air guitar solo.
 
 Test your email by doing this (change the email addresses first, silly):
 
-    echo "From: Test <test@example.com>
-    To: Taco Lover <taco@gmail.com>
+    echo "From: Christopher S. Corley <cscorley@gmail.com>
+    To: Test <test@example.com>
     Subject: Test message
 
     Body would go here
@@ -286,13 +297,13 @@ has finished syncing by now. :)
 ### Installing
 
 This is going to be a bit complicated. OS X ships with Ruby 2.0, and sup
-runs on Ruby 1.9.3 right now. You can install this however you like,
-just as long as you're running 1.9.3.
+runs best on Ruby 1.9.3 at the moment. You can install this however you
+like, just as long as you're running 1.9.3.
 
 #### Getting 1.9.3
 
-I recommend using the [ruby-install][] tool to install different rubies and
-the [chruby][] tool to switch out between them. Install them both from
+I recommend using the [ruby-install] tool to install different rubies
+and the [chruby] tool to switch between them. Install them both from
 your package manager:
 
     brew install ruby-install
@@ -304,7 +315,7 @@ After installing those, install Ruby 1.9.3 and switch to it:
     chruby 1.9.3
     ruby --version
 
-This should print out that you are on 1.9.3. Next, we actually install
+This should confirm that you are on 1.9.3. Next, we actually install
 sup.
 
 [ruby-install]: https://github.com/postmodern/ruby-install
@@ -370,15 +381,16 @@ Most of this is preference, but there are two lines that are important:
 sending and syncing mail.
 
 First, make sure under your default account you have `:sendmail:` set
-you use your preferred SMTP client. Here mine uses the `send.py` from
+you use your preferred SMTP client. Here, I use the `send.py` from
 earlier.
 
 Second, enable `:sync_back_to_maildir:`. This will allow sup to change
 our `~/.mail`, and in turn, allowing OfflineIMAP to sync our changes back
 to the server.
 
-Now, if you try to run `sup` again, it should complain. Just do as it says
-and run `sup-sync-back-maildir`.
+Now, if you try to run `sup`, it should complain. Just do as it says and
+run `sup-sync-back-maildir` if it does. If it doesn't complain, then you
+should be good to go.
 
 #### Adding sources
 
@@ -393,7 +405,7 @@ and put in the following:
       sync_back: true
       id: 1
       labels:
-        - gmail
+      - gmail
     - !supmua.org,2006-10-01/Redwood/Maildir
       uri: maildir:/Users/cscorley/.mail/cscorley-crimson.ua.edu/INBOX
       usual: true
@@ -401,7 +413,7 @@ and put in the following:
       sync_back: true
       id: 3
       labels:
-        - ua
+      - ua
     - !supmua.org,2006-10-01/Redwood/Maildir
       uri: maildir:/Users/cscorley/.mail/cscorley-gmail.com/archive
       usual: true
@@ -409,7 +421,7 @@ and put in the following:
       sync_back: true
       id: 2
       labels:
-        - gmail
+      - gmail
     - !supmua.org,2006-10-01/Redwood/Maildir
       uri: maildir:/Users/cscorley/.mail/cscorley-crimson.ua.edu/archive
       usual: true
@@ -417,13 +429,32 @@ and put in the following:
       sync_back: true
       id: 4
       labels:
-        - ua
+      - ua
     - !supmua.org,2006-10-01/Redwood/SentLoader {}
 
 Each account I have has two sources: The first is the `INBOX`, which is
 the Maildir folder you will be working out of primarily. The second is
 the `archive`, which sup can use for searching through your old emails
 and display threads correctly.
+
+The thing with sup is that it technically manages all the mail
+internally, and this whole Maildir sync back stuff is new. A typical sup
+configuration would just use one folder for each email account, the
+`archive` or `INBOX`. It would sync back read, starred, etc status back
+to that particular Maildir.
+
+But we want more than that. When we remove an email from the inbox, we
+want it gone and for that change to propagate to all other devices. This
+dual configuration (both `archive` and `INBOX`) will allow us to mimic
+that behavior until something better comes along. Everything that
+appears in the `archive` source will be auto-archived in sup. Everything
+in the `INBOX` source will do as you expect, show up in sup's inbox.
+There are some caveats to this setup, which we will get to later when
+discussing using sup.
+
+Once you have sources configured, preform your first `sup-sync`. It might
+take a few minutes. This is going to tell sup to pull in all that new
+mail.
 
 #### Polling sources
 
@@ -438,8 +469,15 @@ time before sup checks for new mail:
       @last_fetch = Time.now
     end
 
-This way, if offlineimap hasn't been ran in approximately two minutes,
-it will sync our Maildir for us. Nice.
+This way, if OfflineIMAP hasn't been ran in approximately two minutes,
+it will sync our Maildir for us. Nice. The flags we are giving
+OfflineIMAP are to run once (`-o`) and not to output anything to stdin
+(`-u quiet`).
+
+*Note*: changes you make within sup may not appear on other devices,
+even after running OfflineIMAP. This is because sup has yet to sync it's
+changes back to the Maildir. So, don't worry if it takes a few minutes
+for an email to actually leave your inbox on Gmail.
 
 ### Running
 
@@ -458,11 +496,44 @@ For the most part, sup usage in this setup is pretty close to what's
 described in the [New User Guide]. There is one variation, however.
 Archiving.
 
+### <s>Archiving</s> Deleting
+
 In sup, we won't archive anything. Gmail and OfflineIMAP handles that
 for us. All we have to do is remove emails from the `INBOX` so our
 changes show up across devices. To do this, we will mark mails in the
 inbox for deletion when we are done. Don't worry, they are still in
-Gmail's All Mail, and in turn, our local `archive` as well.
+Gmail's All Mail (thanks to setting `realdelete = no` in our OfflineIMAP
+config), and in turn, our local `archive` as well.
+
+This means that, for a mail to go from unread, read, and archived,
+OfflineIMAP will need to run *three* times. Yep. Three. See how messed
+up this is? This is email in 2014.
+
+For example:
+
+1. A new mail appears from OfflineIMAP's first sync.
+2. While working through your inbox, you will be marking mails
+   as read, starring, and deleting them. Sup will sync those flags back
+   to the Maildir. OfflineIMAP will sync those changes back to Gmail.
+3. Google will figure out how those changes apply to the mail
+   in All Mail, and they will propagate the read/starred flag for us.
+   This change will come back down to us into our `archive` when
+   OfflineIMAP runs a third, and final time.
+
+Unfortunately, deleting does not remove the `inbox` label from the mail
+in sup, but instead just adds a `deleted` label. I consider this [a bug].
+Sometimes, mail might show back up in your sup inbox, even after syncing
+back to Gmail. Just archive it in this case.
+
+#### Labels
+
+You should still be able to label emails with this method. Sup will
+apply that label to both emails in the inbox and archive, which is good
+news for us. Again, it will take a few syncs for that sort of change to
+propagate around and your email to become searchable after deletion from
+the inbox.
+
+### Archiving
 
 There is one way archiving can be used: it can be used to clean up your
 sup inbox during triage. Label an email `todo` and archive it. Don't
@@ -470,17 +541,13 @@ worry, it's still in the inbox on Gmail, but now hidden under `todo` in
 sup. The single drawback to using sup right now is labels don't sync
 back to Gmail. Once you've finished with the mail, mark it for deletion.
 
-Sorry, I don't have a way to label things both in the archive and inbox
-(yet). Fortunately for me, once I am done with an email, I don't care
-what it's labels were any longer (yes, I realize I'm throwing out one of
-the best parts about sup).
-
 Need to move something from the archive back into sup's inbox? Just
 press `a` to unarchive it again. Boom, done. Yep, the inbox is just
 a label, and archiving things just removes that label. These changes
 won't, however, show up across devices.
 
 [New User Guide]: https://github.com/sup-heliotrope/sup/wiki/New-User-Guide
+[a bug]: https://github.com/sup-heliotrope/sup/issues/211
 
 
 Contacts
