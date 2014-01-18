@@ -1,6 +1,12 @@
 ---
 layout: post
 title: Sup?
+tags:
+  - sup
+  - email
+  - gmail
+  - offlineimap
+  - oauth2
 ---
 
 In this post I'm going to show you how I use [sup] to manage multiple
@@ -120,8 +126,10 @@ Also, go ahead and make sure you've got `sqlite` installed: `brew install sqlite
 ### Configuration
 
 Create a file `~/.offlineimaprc`. The following configuration sets up
-OAuth2, so if you want to put in plain-text username and password, find
-another guide.
+OAuth2. If you'd like an indepth explanation of the options set out
+here, Steve Losh's [The Homely Mutt] guide is a good write up for
+a similar setup using Mutt (it also goes about setting up using
+user/pass instead of OAuth2)
 
     [general]
     ui = ttyui
@@ -207,6 +215,8 @@ located at `/etc/ssl/certs/ca-certificates.crt` (I think).
 
 Finally, OAuth2! Under each remote, put your client id, client secret,
 and refresh token. Boom, done.
+
+[The Homely Mutt]: http://stevelosh.com/blog/2012/10/the-homely-mutt/#configuring-offlineimap
 
 ### Running
 
@@ -298,7 +308,8 @@ has finished syncing by now. :)
 
 This is going to be a bit complicated. OS X ships with Ruby 2.0, and sup
 runs best on Ruby 1.9.3 at the moment. You can install this however you
-like, just as long as you're running 1.9.3.
+like, just as long as you're running 1.9.3. This post is based around
+sup 0.15.2.
 
 #### Getting 1.9.3
 
@@ -456,29 +467,6 @@ Once you have sources configured, preform your first `sup-sync`. It might
 take a few minutes. This is going to tell sup to pull in all that new
 mail.
 
-#### Polling sources
-
-Create a file `~/.sup/hooks/before-poll.rb`. This file will be ran each
-time before sup checks for new mail:
-
-    if (@last_fetch || Time.at(0)) < Time.now - 120
-      say "Running offlineimap..."
-      # only check non-auto-archived sources on the first run
-      log system "offlineimap", "-o", "-u", "quiet"
-      say "Finished offlineimap run."
-      @last_fetch = Time.now
-    end
-
-This way, if OfflineIMAP hasn't been ran in approximately two minutes,
-it will sync our Maildir for us. Nice. The flags we are giving
-OfflineIMAP are to run once (`-o`) and not to output anything to stdin
-(`-u quiet`).
-
-*Note*: changes you make within sup may not appear on other devices,
-even after running OfflineIMAP. This is because sup has yet to sync it's
-changes back to the Maildir. So, don't worry if it takes a few minutes
-for an email to actually leave your inbox on Gmail.
-
 ### Running
 
 Run `sup` by:
@@ -521,9 +509,7 @@ For example:
    OfflineIMAP runs a third, and final time.
 
 Unfortunately, deleting does not remove the `inbox` label from the mail
-in sup, but instead just adds a `deleted` label. I consider this [a bug].
-Sometimes, mail might show back up in your sup inbox, even after syncing
-back to Gmail. Just archive it in this case.
+in sup, but instead just adds a `deleted` label.
 
 #### Labels
 
@@ -549,16 +535,145 @@ won't, however, show up across devices.
 [New User Guide]: https://github.com/sup-heliotrope/sup/wiki/New-User-Guide
 [a bug]: https://github.com/sup-heliotrope/sup/issues/211
 
+### Attachments
 
-Contacts
---------
+Sometimes you will get an attachment, and need to save it somewhere or
+view it immediately. Generally, you can just move the cursor line over
+which attachment you want to look at and press `return`. On OS X, sup
+should make a call to `open` and let it handle the rest.
 
-todo.
+To save an attachment, move the cursor line over the attachment and
+press `s`. It'll ask you where to save it to, and boom. Done.
+
+Hooks
+-----
+
+Alright, folks. Here's were our sup game gets *real*. I mean, really real.
+Go ahead and make a dir in your ~/.sup for them: `mkdir ~/.sup/hooks/`.
+
+### Megadelete
+
+Remember when I said deleting a mail will delete it, but not remove it's
+inbox label? Yeah, we're going to fix that. If mails you've been deleting
+have been showing back up in your inbox after some time, then here's the
+solution.
+
+Slam this bit of code into `~/.sup/hooks/startup.rb`:
+
+    class Redwood::ThreadIndexMode
+      def toggle_archived_and_deleted
+        t = cursor_thread or return
+        multi_toggle_archived [t]
+        multi_toggle_deleted [t]
+      end
+    end
+
+    class Redwood::InboxMode
+      def archive_and_delete
+        t = cursor_thread or return
+        multi_archive [t]
+        multi_toggle_deleted [t]
+      end
+    end
+
+    class Redwood::ThreadViewMode
+      def archive_and_delete_and_next
+        archive_and_then delete_and_next
+      end
+    end
+
+This adds some custom methods to our views that do both the job of
+archiving and deleting mails. Pretty rad, yeah?
+
+Next, let's bind a key to those functions so we can use 'em. Put this in
+a file aptly named `~/.sup/hooks/keybindings.rb`:
+
+    modes["inbox-mode"].keymap.add :archive_and_delete, "Archive and delete", :backspace
+    modes["thread-index-mode"].keymap.add :toggle_archived_and_deleted, "Archive and delete thread", :backspace
+    modes["thread-view-mode"].keymap.add :archive_and_delete_and_next, "Archive and delete thread, then view next", :backspace
+
+Boom. Now when you press backspace (or delete on a Macbook) on a mail,
+it will remove the "inbox" label *and* delete it from our `INBOX`
+maildir. Nice nice. You should be able to delete things all willy-nilly
+within sup, I don't think Gmail will  actually remove an email from your
+All Mail (warning: I've only sort-of tested that this works). Because of
+the way I've implemented these, there should be no worries, just press
+`u` to undo whatever dumb thing you just did.
+
+### Polling sources
+
+Create a file `~/.sup/hooks/before-poll.rb`. This file will be ran each
+time before sup checks for new mail:
+
+    if (@last_fetch || Time.at(0)) < Time.now - 120
+      say "Running offlineimap..."
+      log system "offlineimap", "-o", "-u", "quiet"
+      say "Finished offlineimap run."
+      @last_fetch = Time.now
+    end
+
+This way, if OfflineIMAP hasn't been ran in approximately two minutes,
+it will sync our Maildir for us. Nice. The flags we are giving
+OfflineIMAP are to run once (`-o`) and not to output anything to stdin
+(`-u quiet`).
+
+*Note*: changes you make within sup may not appear on other devices,
+even after running OfflineIMAP. This is because sup has yet to sync it's
+changes back to the Maildir. So, don't worry if it takes a few minutes
+for an email to actually leave your inbox on Gmail.
+
+### Contacts
+
+I use OS X's built in accounts thing to keep my address book in sync
+with my Google contacts. This next hook requires you to have the sqlite3
+gem installed: `gem install sqlite3`
+
+Paste this into `~/.sup/hooks/extra-contact-addresses.rb` for address
+auto-completing awesomeness:
+
+    sources=['DEADBEEF-1234-ABCD-EF01-E0FE2F8F39B2', '012345678-1234-ABCD-EF01-ABABABABABAB']
+
+    books = []
+    books.push('~/Library/Application Support/AddressBook/AddressBook-v22.abcddb',)
+    for s in sources do
+      books.push('~/Library/Application Support/AddressBook/Sources/' + s + '/AddressBook-v22.abcddb')
+    end
+
+    contacts=[]
+    for addressbook in books do
+      if File.exists?(File.expand_path(addressbook))
+        require 'sqlite3'
+        db = SQLite3::Database.new(File.expand_path(addressbook))
+        sql="select e.ZADDRESSNORMALIZED,p.ZFIRSTNAME,p.ZLASTNAME,p.ZORGANIZATION " +
+                "from ZABCDRECORD as p,ZABCDEMAILADDRESS as e WHERE e.ZOWNER = p.Z_PK;"
+        contacts += db.execute(sql).map {|c| "#{c[1]} #{c[2]} #{c[3]} <#{c[0]}>" }
+      end
+    end
+    contacts
+
+To figure out what your `sources` strings should be:
+
+    cd ~/Library/Application\ Support/AddressBook/Sources
+    grep "https://google.com/carddav" * -rI | sed 's/\/.*$//g'
+
+Just paste those in over my example ones.
+
+As far as other systems go, you could try something with [goobook]. I'd
+use it everywhere, but it doesn't have OAuth2 built-in yet.
+
+[goobook]: https://pypi.python.org/pypi/goobook
 
 Conclusion
 ----------
 
 Ugh, email. Hopefully one day sup will be at the point that it
 interfaces with Maildirs better, and the `INBOX`/`archive` situation won't
-be so convoluted. Until then, this is the best I've come up with. So,
-that's what's up.
+be so convoluted. Until then, this is the best I've come up with.
+So, that's what's up.
+
+
+*Note:* You can find my up-to-date sup config in my [dotfiles repo][dotsup] on
+GitHub. 
+
+
+[dotsup]: https://github.com/cscorley/dotfiles/tree/master/dots/.sup
