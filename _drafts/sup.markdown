@@ -560,27 +560,31 @@ solution.
 
 Slam this bit of code into `~/.sup/hooks/startup.rb`:
 
-    class Redwood::ThreadIndexMode
-      def toggle_archived_and_deleted
-        t = cursor_thread or return
-        multi_toggle_archived [t]
-        multi_toggle_deleted [t]
-      end
-    end
+{% highlight ruby %}
 
-    class Redwood::InboxMode
-      def archive_and_delete
-        t = cursor_thread or return
-        multi_archive [t]
-        multi_toggle_deleted [t]
-      end
-    end
+class Redwood::ThreadIndexMode
+  def toggle_archived_and_deleted
+    t = cursor_thread or return
+    multi_toggle_archived [t]
+    multi_toggle_deleted [t]
+  end
+end
 
-    class Redwood::ThreadViewMode
-      def archive_and_delete_and_next
-        archive_and_then delete_and_next
-      end
-    end
+class Redwood::InboxMode
+  def archive_and_delete
+    t = cursor_thread or return
+    multi_archive [t]
+    multi_toggle_deleted [t]
+  end
+end
+
+class Redwood::ThreadViewMode
+  def archive_and_delete_and_next
+    archive_and_then delete_and_next
+  end
+end
+
+{% endhighlight %}
 
 This adds some custom methods to our views that do both the job of
 archiving and deleting mails. Pretty rad, yeah?
@@ -588,9 +592,13 @@ archiving and deleting mails. Pretty rad, yeah?
 Next, let's bind a key to those functions so we can use 'em. Put this in
 a file aptly named `~/.sup/hooks/keybindings.rb`:
 
-    modes["inbox-mode"].keymap.add :archive_and_delete, "Archive and delete", :backspace
-    modes["thread-index-mode"].keymap.add :toggle_archived_and_deleted, "Archive and delete thread", :backspace
-    modes["thread-view-mode"].keymap.add :archive_and_delete_and_next, "Archive and delete thread, then view next", :backspace
+{% highlight ruby %}
+
+modes["inbox-mode"].keymap.add :archive_and_delete, "Archive and delete", :backspace
+modes["thread-index-mode"].keymap.add :toggle_archived_and_deleted, "Archive and delete thread", :backspace
+modes["thread-view-mode"].keymap.add :archive_and_delete_and_next, "Archive and delete thread, then view next", :backspace
+
+{% endhighlight %}
 
 Boom. Now when you press backspace (or delete on a Macbook) on a mail,
 it will remove the "inbox" label *and* delete it from our `INBOX`
@@ -605,12 +613,16 @@ the way I've implemented these, there should be no worries, just press
 Create a file `~/.sup/hooks/before-poll.rb`. This file will be ran each
 time before sup checks for new mail:
 
-    if (@last_fetch || Time.at(0)) < Time.now - 120
-      say "Running offlineimap..."
-      log system "offlineimap", "-o", "-u", "quiet"
-      say "Finished offlineimap run."
-      @last_fetch = Time.now
-    end
+{% highlight ruby %}
+
+if (@last_fetch || Time.at(0)) < Time.now - 120
+  say "Running offlineimap..."
+  log system "offlineimap", "-o", "-u", "quiet"
+  say "Finished offlineimap run."
+  @last_fetch = Time.now
+end
+
+{% endhighlight %}
 
 This way, if OfflineIMAP hasn't been ran in approximately two minutes,
 it will sync our Maildir for us. Nice. The flags we are giving
@@ -631,25 +643,29 @@ gem installed: `gem install sqlite3`
 Paste this into `~/.sup/hooks/extra-contact-addresses.rb` for address
 auto-completing awesomeness:
 
-    sources=['DEADBEEF-1234-ABCD-EF01-E0FE2F8F39B2', '012345678-1234-ABCD-EF01-ABABABABABAB']
+{% highlight ruby %}
 
-    books = []
-    books.push('~/Library/Application Support/AddressBook/AddressBook-v22.abcddb',)
-    for s in sources do
-      books.push('~/Library/Application Support/AddressBook/Sources/' + s + '/AddressBook-v22.abcddb')
-    end
+sources=['DEADBEEF-1234-ABCD-EF01-E0FE2F8F39B2', '012345678-1234-ABCD-EF01-ABABABABABAB']
 
-    contacts=[]
-    for addressbook in books do
-      if File.exists?(File.expand_path(addressbook))
-        require 'sqlite3'
-        db = SQLite3::Database.new(File.expand_path(addressbook))
-        sql="select e.ZADDRESSNORMALIZED,p.ZFIRSTNAME,p.ZLASTNAME,p.ZORGANIZATION " +
-                "from ZABCDRECORD as p,ZABCDEMAILADDRESS as e WHERE e.ZOWNER = p.Z_PK;"
-        contacts += db.execute(sql).map {|c| "#{c[1]} #{c[2]} #{c[3]} <#{c[0]}>" }
-      end
-    end
-    contacts
+books = []
+books.push('~/Library/Application Support/AddressBook/AddressBook-v22.abcddb',)
+for s in sources do
+  books.push('~/Library/Application Support/AddressBook/Sources/' + s + '/AddressBook-v22.abcddb')
+end
+
+contacts=[]
+for addressbook in books do
+  if File.exists?(File.expand_path(addressbook))
+    require 'sqlite3'
+    db = SQLite3::Database.new(File.expand_path(addressbook))
+    sql="select e.ZADDRESSNORMALIZED,p.ZFIRSTNAME,p.ZLASTNAME,p.ZORGANIZATION " +
+            "from ZABCDRECORD as p,ZABCDEMAILADDRESS as e WHERE e.ZOWNER = p.Z_PK;"
+    contacts += db.execute(sql).map {|c| "#{c[1]} #{c[2]} #{c[3]} <#{c[0]}>" }
+  end
+end
+contacts
+
+{% endhighlight %}
 
 To figure out what your `sources` strings should be:
 
