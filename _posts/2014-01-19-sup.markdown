@@ -507,7 +507,7 @@ For the most part, sup usage in this setup is pretty close to what's
 described in the [New User Guide]. There is one variation, however.
 Archiving.
 
-### ~~Archiving~~ Deleting
+### <s>Archiving</s> Deleting
 
 In sup, we won't archive anything. Gmail and OfflineIMAP handles that
 for us. All we have to do is remove emails from the `INBOX` so our
