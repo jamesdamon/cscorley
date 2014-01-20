@@ -58,14 +58,23 @@ use email on my phone and OS X, this guide will be targeted towards OS
 X use (although my Arch Linux set up is nearly identical, only differing
 by package managers for installing tools).
 
+For this setup, there are three components we will need:
+
+1. Sup: for managing email
+2. OfflineIMAP: for fetching email and keeping Gmail in sync
+3. Send.py: for sending email via SMTP
+
+Each of these components could potentially be swapped out for something
+equivalent, should your setup require it. I'm going to try to be as
+accurate as possible here, and explain what I can in detail.
+
 OAuth2
 ------
 
 For my setup, I cannot use the ordinary username/password setup for
-emails that most guides you will find. My school gives us an email that
-is a Google Apps mail, but handles logins themselves. So, I am required
-to use OAuth2 to login. If you don't need this, just skip this section
-if you want.
+emails. My school gives us an email that is a Google Apps mail, but
+handles logins themselves. So, I am required to use OAuth2 to login. If
+you don't need this, just skip this section if you want.
 
 ### Registering your "app"
 
@@ -95,7 +104,8 @@ Make note of the *Refresh Token*, we will need that for configuration
 also. Do this for each account you need, making note of which account is
 related to which refresh token.
 
-With those three things, you are armed and ready to rock with OAuth2.
+With those three things -- the Client ID, Client Secret, and Refresh
+Token -- you are armed and ready to rock with OAuth2.
 
 [Developers Console]: https://cloud.google.com/console/project
 [this guide]: https://code.google.com/p/google-mail-oauth2-tools/wiki/OAuth2DotPyRunThrough
@@ -126,8 +136,8 @@ Also, go ahead and make sure you've got `sqlite` installed: `brew install sqlite
 ### Configuration
 
 Create a file `~/.offlineimaprc`. The following configuration sets up
-OAuth2. If you'd like an indepth explanation of the options set out
-here, Steve Losh's [The Homely Mutt] guide is a good write up for
+OAuth2. If you'd like an more in-depth explanation of the options set
+out here, Steve Losh's [The Homely Mutt] guide is a good source for
 a similar setup using Mutt (it also goes about setting up using
 user/pass instead of OAuth2)
 
@@ -202,10 +212,20 @@ user/pass instead of OAuth2)
                                                 '[Gmail]/Starred',
                                                 ]
 
+Here I have two accounts, each with two repositories (four total)
+associated with them: one local copy, and one remote copy. The remote
+sections describes what the setup looks like on the IMAP server (what to
+fetch), and how to log in. The local sections describes where we keep
+our mail (where to store). Implicitly, OfflineIMAP will grab everything
+unless told specifically to ignore it (using the `folderfilter`
+setting). 
+
 Note that we are only interested in syncing two folders: `[Gmail]/All
 Mail` and `INBOX`. We can just filter out the rest, they aren't
-important to us. When we send a mail, Gmail will save it to Sent Mail
-*and* All Mail for you. Sup has it's own internal sent mail folder.
+important to us. So, any labels you have in Gmail you might want to
+include should be put into the `folderfilter`. When we send a mail,
+Gmail will save it to Sent Mail *and* All Mail for you. Sup has it's own
+internal sent mail folder.
 
 Another point of interest is the `sslcacertfile=` field on both remote
 Repositories. OS X doesn't come with one handy, so install the
@@ -214,15 +234,17 @@ Arch Linux, `ca-certificates` serves as a similar package should be
 located at `/etc/ssl/certs/ca-certificates.crt` (I think).
 
 Finally, OAuth2! Under each remote, put your client id, client secret,
-and refresh token. Boom, done.
+and refresh token in to their respective settings beginning with
+`oauth2_`. Boom, done.
 
 [The Homely Mutt]: http://stevelosh.com/blog/2012/10/the-homely-mutt/#configuring-offlineimap
 
 ### Running
 
-Go ahead and run offlineimap so we can get the emails downloaded. It will
+Go ahead and run OfflineIMAP so we can get the emails downloaded. It will
 probably take awhile if you have a lot of mails:
 
+    mkdir ~/.mail
     offlineimap
 
 Later, we'll configure sup to run OfflineIMAP for us when we check for
@@ -233,10 +255,10 @@ Sending email
 
 Ahhhhh, sending email. What good is email if we can't annoy people with
 it? I haven't found an SMTP client that seemed easy enough for me to
-extend OAuth2 into, and really I didn't have to. Python has `smtplib`
-and it handles just about everything for me anyway. There is a way to
-have sup send mail for you using hooks, but I can't be arsed to learn
-Ruby well enough to provide that right now.
+extend OAuth2 into, and really I didn't have to. Python has the
+`smtplib` library and it handles just about everything for me anyway.
+There is a way to have sup send mail for you using hooks, but I can't be
+arsed to learn Ruby well enough to provide that right now.
 
 ### Installing
 
@@ -259,7 +281,8 @@ where the `send.py` file is.
 ### Configuration
 
 Configuring this will hopefully be more straightforward. Just plop
-in your id, secret, and token and bust an air guitar solo.
+in your id, secret, and token and bust an air guitar solo. Place this
+config in a file at `~/.sendpyrc`:
 
     [oauth2]
     request_url = https://accounts.google.com/o/oauth2/token
@@ -344,8 +367,8 @@ Done.
 ### Configuration
 
 Typically at this point you would run `sup-config`. Go ahead and do
-that, and when it asks you about adding sources, don't. We will
-configure that ourselves.
+that, and when it asks you about adding sources, don't. (Or do, it
+should be pretty straightforward). We will configure that ourselves.
 
 #### Basic configuration
 
@@ -463,11 +486,11 @@ in the `INBOX` source will do as you expect, show up in sup's inbox.
 There are some caveats to this setup, which we will get to later when
 discussing using sup.
 
+### Running
+
 Once you have sources configured, preform your first `sup-sync`. It might
 take a few minutes. This is going to tell sup to pull in all that new
 mail.
-
-### Running
 
 Run `sup` by:
 
@@ -484,14 +507,18 @@ For the most part, sup usage in this setup is pretty close to what's
 described in the [New User Guide]. There is one variation, however.
 Archiving.
 
-### <s>Archiving</s> Deleting
+### ~~Archiving~~ Deleting
 
 In sup, we won't archive anything. Gmail and OfflineIMAP handles that
 for us. All we have to do is remove emails from the `INBOX` so our
 changes show up across devices. To do this, we will mark mails in the
 inbox for deletion when we are done. Don't worry, they are still in
-Gmail's All Mail (thanks to setting `realdelete = no` in our OfflineIMAP
-config), and in turn, our local `archive` as well.
+Gmail's All Mail, and in turn, our local `archive` as well.
+
+This works by setting Gmail to *never* actually delete a message. You
+can find it in Gmail under Settings > Forwarding and POP/IMAP > IMAP
+access on your account. Make sure auto-expunge is on and the delete
+action is to archive the message.
 
 This means that, for a mail to go from unread, read, and archived,
 OfflineIMAP will need to run *three* times. Yep. Three. See how messed
@@ -509,7 +536,7 @@ For example:
    OfflineIMAP runs a third, and final time.
 
 Unfortunately, deleting does not remove the `inbox` label from the mail
-in sup, but instead just adds a `deleted` label.
+in sup, but instead just adds a `deleted` label. More on that in a bit.
 
 #### Labels
 
@@ -523,7 +550,7 @@ the inbox.
 
 There is one way archiving can be used: it can be used to clean up your
 sup inbox during triage. Label an email `todo` and archive it. Don't
-worry, it's still in the inbox on Gmail, but now hidden under `todo` in
+worry, it's still in the Inbox on Gmail, but now hidden under `todo` in
 sup. The single drawback to using sup right now is labels don't sync
 back to Gmail. Once you've finished with the mail, mark it for deletion.
 
@@ -602,7 +629,7 @@ modes["thread-view-mode"].keymap.add :archive_and_delete_and_next, "Archive and 
 
 Boom. Now when you press backspace (or delete on a Macbook) on a mail,
 it will remove the "inbox" label *and* delete it from our `INBOX`
-maildir. Nice nice. You should be able to delete things all willy-nilly
+Maildir. Nice nice. You should be able to delete things all willy-nilly
 within sup, I don't think Gmail will  actually remove an email from your
 All Mail (warning: I've only sort-of tested that this works). Because of
 the way I've implemented these, there should be no worries, just press
@@ -689,7 +716,7 @@ So, that's what's up.
 
 
 *Note:* You can find my up-to-date sup config in my [dotfiles repo][dotsup] on
-GitHub. 
+GitHub.
 
 
 [dotsup]: https://github.com/cscorley/dotfiles/tree/master/dots/.sup
