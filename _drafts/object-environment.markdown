@@ -6,6 +6,7 @@ tags:
     - object oriented
     - education
     - python
+    - lecture notes
 ---
 
 Students often have trouble grasping the difference between objects,
@@ -55,7 +56,7 @@ not_my_gpa = 4.0
             b           | str      | "Tacos"
             not_my_gpa  | float    | 4.0
 
-That isn't very interesting. Neither would changing a variable.
+That isn't very interesting. Neither would be changing a variable.
 
 {% highlight python %}
 
@@ -70,9 +71,8 @@ a = [1, 2, 3]
             b           | str      | "Tacos"
             not_my_gpa  | float    | 4.0
 
-If we wanted to use a variable, then Python would have to look up it's
+If we wanted to use a variable, then Python would have to look up its
 value in the environment table.
-
 
 {% highlight python %}
 
@@ -141,7 +141,7 @@ arguments. When the function is evaluated, the arguments are set up in
             not_my_gpa  | float    | 4.0
             square      | function |
 
-            square(10):
+    Function call-> square(10):
                     Variable    | Type     | Value
                     ------------------------------
                     val         | int      | 10
@@ -174,8 +174,8 @@ def power_of_c(val):
 
 {% endhighlight %}
 
-Oh lord, this function is *drunk*. It uses something that is given as an
-argument, creates it's own variables, and even uses some outside of it.
+Oh geez, this function is *drunk*. It uses something that is given as an
+argument, creates its own variables, and even uses some outside of it.
 How is that possible? It is possible through something known as
 *scoping*. If we call `power_of_c`, an environment is created
 specifically for it, just like when `square` was called.
@@ -196,7 +196,7 @@ d = power_of_c(3)
             power_of_c  | function |
             c           | int      | 100
 
-            power_of_c(3):
+    Function call-> power_of_c(3):
                     Variable    | Type     | Value
                     ------------------------------
                     val         | int      | 3
@@ -213,7 +213,7 @@ it creates a new variable, `z`, and gives it the value 1.
             power_of_c  | function |
             c           | int      | 100
 
-            power_of_c(3):
+    Function call-> power_of_c(3):
                     Variable    | Type     | Value
                     ------------------------------
                     val         | int      | 3
@@ -223,7 +223,7 @@ Note that `z` is created *within* the `power_of_c(3)` environment. Next,
 we begin our loop and start updating `z` with `z * c`. First loop
 through `z` will become 100, since `c` is 100 and `1 * 100 == 100`.
 
-            power_of_c(3):
+    Function call-> power_of_c(3):
                     Variable    | Type     | Value
                     ------------------------------
                     val         | int      | 3
@@ -232,7 +232,7 @@ through `z` will become 100, since `c` is 100 and `1 * 100 == 100`.
 A second time,
 
 
-            power_of_c(3):
+    Function call-> power_of_c(3):
                     Variable    | Type     | Value
                     ------------------------------
                     val         | int      | 3
@@ -252,7 +252,7 @@ environment is destroyed, and our new variable is created.
             c           | int      | 100
             d           | int      | 1000000
 
-But how did `power_of_c` know where to find `c` if it wasn't in it's
+But how did `power_of_c` know where to find `c` if it wasn't in its
 environment? It knows because the environments are *nested* in a sense.
 That is, if a variable does not exist within the inner most environment,
 Python will try to look it up in the next environment up, or the
@@ -332,12 +332,12 @@ and calls it instead.
             b           | str      | "Tacos"
             Fraction    | class    |
 
-        Fraction(1,2):
-                Variable    | Type     | Value
-                ------------------------------
-                self        | object   | *
-                n           | int      | 1
-                d           | int      | 2
+    Create object--> Fraction(1,2):
+                    Variable    | Type     | Value
+                    ------------------------------
+                    self        | object   | *
+                    n           | int      | 1
+                    d           | int      | 2
 
 Or, more specifically:
 
@@ -348,12 +348,12 @@ Or, more specifically:
             b           | str      | "Tacos"
             Fraction    | class    |
 
-        Fraction.__init__(*, 1,2):
-                Variable    | Type     | Value
-                ------------------------------
-                self        | object   | *
-                n           | int      | 1
-                d           | int      | 2
+    Method call---> Fraction.__init__(*, 1,2):
+                    Variable    | Type     | Value
+                    ------------------------------
+                    self        | object   | *
+                    n           | int      | 1
+                    d           | int      | 2
 
 So, if you were like me back when I was first learning this stuff, you
 are asking yourself, *"what the hell is `self` and why does `__init__`
@@ -361,7 +361,7 @@ get called with three parameters when I only gave Fraction two
 arguments?*" It's because the `self` parameter is going to be the object
 we just created. Python is giving us a chance to *init*ialize some
 values for this new object before it returns it and assigns it to the
-variable `half`. (Real answer: mostly because Python is stupid.) 
+variable `half`. (Real answer: mostly because Python is stupid.)
 
 ### What the hell is an object?!
 
@@ -384,7 +384,7 @@ environment table!
             b           | str      | "Tacos"
             Fraction    | class    |
 
-        Fraction.__init__(*, 1,2):
+    Method call---> Fraction.__init__(*, 1,2):
                 Variable    | Type     | Value
                 ------------------------------
                 self        | object   | *------\
@@ -395,7 +395,7 @@ environment table!
         /---------------------------------------/
         |
         V
-    <fraction> object #1:
+    <Fraction> object #1:
             Variable    | Type     | Value
             ------------------------------
 
@@ -428,7 +428,7 @@ assigns it the value of `n`. Then the same for the `denominator` and
             b           | str      | "Tacos"
             Fraction    | class    |
 
-        Fraction.__init__(*, 1,2):
+    Method call---> Fraction.__init__(*, 1,2):
                 Variable    | Type     | Value
                 ------------------------------
                 self        | object   | *------\
@@ -439,14 +439,14 @@ assigns it the value of `n`. Then the same for the `denominator` and
         /---------------------------------------/
         |
         V
-    <fraction> object #1:
+    <Fraction> object #1:
             Variable    | Type     | Value
             ------------------------------
             numerator   | int      | 1
             denominator | int      | 2
 
 Welp, that about wraps that up. `__init__` finishes, *implicitly*
-returns `self`, and destroys it's environment. We are now left with
+returns `self`, and destroys its environment. We are now left with
 something that looks like this:
 
     global:
@@ -461,7 +461,7 @@ something that looks like this:
         /---------------------------------------/
         |
         V
-    <fraction> object #1:
+    <Fraction> object #1:
             Variable    | Type     | Value
             ------------------------------
             numerator   | int      | 1
@@ -469,10 +469,10 @@ something that looks like this:
 
 Note how the value of `half` points to that environment representing the
 new object. These are known as *pointers* in other languages, such as C.
-(Yep, we're real creative with names in computer science.) Also, it's
-*type* is a `Fraction`. 
+(Yep, we're real creative with names in computer science.) Also, its
+*type* is a `Fraction`.
 
-So, let's do something with our new fraction. What is it's value
+So, let's do something with our new fraction. What is its value
 represented as a float (decimal)?
 
 
@@ -498,7 +498,7 @@ environment within `half`.
         /---------------------------------------/
         |
         V
-    <fraction> object #1:
+    <Fraction> object #1:
             Variable    | Type     | Value
             ------------------------------
             numerator   | int      | 1
@@ -531,7 +531,7 @@ Now our set of environments looks like this (I've left out the calls to
         /---------------------------------------/   |   |
         |                                           |   |
         V                                           |   |
-    <fraction> object #1:                           |   |
+    <Fraction> object #1:                           |   |
             Variable    | Type     | Value          |   |
             ------------------------------          |   |
             numerator   | int      | 1              |   |
@@ -540,7 +540,7 @@ Now our set of environments looks like this (I've left out the calls to
         /-------------------------------------------/   |
         |                                               |
         V                                               |
-    <fraction> object #2:                               |
+    <Fraction> object #2:                               |
             Variable    | Type     | Value              |
             ------------------------------              |
             numerator   | int      | 1                  |
@@ -549,14 +549,14 @@ Now our set of environments looks like this (I've left out the calls to
         /-----------------------------------------------/
         |
         V
-    <fraction> object #3:
+    <Fraction> object #3:
             Variable    | Type     | Value
             ------------------------------
             numerator   | int      | 22
             denominator | int      | 7
 
 
-Converting our fraction to a float might be useful enough to put in it's
+Converting our fraction to a float might be useful enough to put in its
 own fuction.
 
 {% highlight python %}
@@ -607,18 +607,18 @@ many_three = to_float(third)
         /-------------------------------------------+---\
         |                                               |
         V                                               |
-    <fraction> object #2:                               |
+    <Fraction> object #2:                               |
             Variable    | Type     | Value              |
             ------------------------------              |
             numerator   | int      | 1                  |
             denominator | int      | 3                  |
                                                         |
-            to_float(third):                            |
+    Function call-> to_float(third):                    |
                     Variable    | Type     | Value      |
                     ------------------------------      |
                     f           | Fraction | *----------/
 
-Notice when `to_float(third)`'s environment is created, it's parameter
+Notice when `to_float(third)`'s environment is created, its parameter
 `f` points to the same fraction as the argument `third`. When
 `to_float` begins execution, it will use the dot notation to access
 values *within* `f`, or as it is here, `third`.
@@ -652,6 +652,8 @@ pi_ish    = to_float(almost_pi)
             pi_ish      | float    | 0.314...   |   |   |
                                                 |   |   |
                                                ... ... ...
+
+Neat-o.
 
 ### Methods
 
@@ -720,7 +722,7 @@ Now our all our environments are structured like *this*:
         /---------------------------------------/   |   |
         |                                           |   |
         V                                           |   |
-    <fraction> object #1:                           |   |
+    <Fraction> object #1:                           |   |
             Variable    | Type     | Value          |   |
             ------------------------------          |   |
             numerator   | int      | 1              |   |
@@ -730,7 +732,7 @@ Now our all our environments are structured like *this*:
         /-------------------------------------------/   |
         |                                               |
         V                                               |
-    <fraction> object #2:                               |
+    <Fraction> object #2:                               |
             Variable    | Type     | Value              |
             ------------------------------              |
             numerator   | int      | 1                  |
@@ -740,15 +742,15 @@ Now our all our environments are structured like *this*:
         /-----------------------------------------------/
         |
         V
-    <fraction> object #3:
+    <Fraction> object #3:
             Variable    | Type     | Value
             ------------------------------
             numerator   | int      | 22
             denominator | int      | 7
             to_float    | function |
 
-P rad, yeah? Now each `Fraction` object has it's *own* `to_float`, much
-like how it has it's own numerator and denominator. So, how can we use
+P rad, yeah? Now each `Fraction` object has its *own* `to_float`, much
+like how it has its own numerator and denominator. So, how can we use
 it?
 
 
@@ -783,22 +785,23 @@ now `self` is the pointer to `third`:
                                                 |   |   |
                                                ...  |  ...
                                                     |
-        /---------------------------------------+---/   
-        |                                       |      
-        V                                       |      
-    <fraction> object #2:                       |      
-            Variable    | Type     | Value      |      
-            ------------------------------      |      
-            numerator   | int      | 1          |      
-            denominator | int      | 3          |  
-            to_float    | function |            |      
+        /---------------------------------------+---/
+        |                                       |
+        V                                       |
+    <Fraction> object #2:                       |
+            Variable    | Type     | Value      |
+            ------------------------------      |
+            numerator   | int      | 1          |
+            denominator | int      | 3          |
+            to_float    | function |            |
                                                 |
-        third.to_float():                       |
-            Variable    | Type     | Value      |          
-            ------------------------------      |          
-            self        | Fraction | *----------/
+    Method call-> third.to_float():             |
+                Variable    | Type     | Value  |
+                ------------------------------  |
+                self        | Fraction | *------/
 
- 
+_\*busts an air guitar solo\*_
+
 
 ### Most things are object-like
 
@@ -848,3 +851,438 @@ Neat, yeah? So that means... *dun dun dunnnnnnnnnnnnnn*:
 Yeah, I left a lot out. I am getting lazy and all this taco-talk is
 making me hungry, but I think you get the idea: the environment actually
 just holds *pointers* to all the objects for variables.
+
+### Classes holding objects that are classes holding objects that are...
+
+Alright, let's get real crazy here before I go eat. In addition to our
+Fraction class, we'll add ourselves a MixedFraction. MixedFractions are
+whole numbers (ints) and Fraction objects combined together like peanut
+butter and jelly. It's beautiful.
+
+And while we're at it, let's go on and create a `to_float` method that
+will convert the mixed fraction into a floating point number.
+
+Here goes:
+
+{% highlight python %}
+
+class MixedFraction:
+    def __init__(self, whole_num, fraction_obj):
+        self.whole_num = whole_num
+        self.fraction_obj = fraction_obj
+
+    def to_float(self):
+        val = float(self.whole_num)
+                # float() is a built-in function that
+                # can convert integers to floats.
+
+        val += self.fraction_obj.to_float()
+                # ask the fraction for its floating point value!
+
+        return ret
+
+{% endhighlight %}
+
+That's pretty straight forward, yeah? This is known as an *aggregation*
+relationship, as MixedFraction is composed of a Fraction, but isn't
+responsible for it (i.e., it was created outside of the class.)
+
+Let's make some MixedFractions and look at the environment.
+
+{% highlight python %}
+
+half = Fraction(1, 2)
+one_and_a_half = MixedFraction(1, a)
+
+{% endhighlight %}
+
+
+Now, our environment holds this:
+
+    global:
+            Variable        | Type     | Value
+            ----------------------------------
+            Fraction        | class    |
+            MixedFraction   | class    |
+            half            | Fraction | *----------\
+            one_and_a_half  | MixedF...| *----------)---\
+                                                    |   |
+                                                    |   |
+        /---------------------------------------+---/   |
+        |                                       |       |
+        V                                       |       |
+    <Fraction> object #1:                       |       |
+            Variable    | Type     | Value      |       |
+            ------------------------------      |       |
+            numerator   | int      | 1          |       |
+            denominator | int      | 2          |       |
+            to_float    | function |            |       |
+                                                |       |
+        /---------------------------------------)-------/
+        |                                       |
+        V                                       |
+    <MixedFraction> object #1:                  |
+            Variable    | Type     | Value      |
+            ------------------------------      |
+            whole_num   | int      | 1          |
+            fraction_obj| Fraction | *----------/
+            to_float    | function |
+
+If we were to, for example, call `to_float` on `one_and_a_half`, what would
+happen?
+
+{% highlight python %}
+
+z = one_and_a_half.to_float()
+
+{% endhighlight %}
+
+I'll work this one step by step. I just ordered Jimmy John's for
+delivery so we got time.
+
+First, we *ask* `one_and_a_half` to execute the `to_float` method. A new
+temporary environment is created for it to work in, but isn't very
+interesting since `MixedFractions.to_float` needs no parameters:
+
+
+    global:
+            Variable        | Type     | Value
+            ----------------------------------
+            Fraction        | class    |
+            MixedFraction   | class    |
+            half            | Fraction | *----------\
+            one_and_a_half  | MixedF...| *----------)---\
+                                                    |   |
+                                                    |   |
+        /---------------------------------------+---/   |
+        |                                       |       |
+        V                                       |       |
+    <Fraction> object #1:                       |       |
+            Variable    | Type     | Value      |       |
+            ------------------------------      |       |
+            numerator   | int      | 1          |       |
+            denominator | int      | 2          |       |
+            to_float    | function |            |       |
+                                                |       |
+        /---------------------------------------)---+---/
+        |                                       |   |
+        V                                       |   |
+    <MixedFraction> object #1:                  |   |
+            Variable    | Type     | Value      |   |
+            ------------------------------      |   |
+            whole_num   | int      | 1          |   |
+            fraction_obj| Fraction | *----------/   |
+            to_float    | function |                |
+                                                    |
+                                                    |
+    Method call-> one_and_a_half.to_float():        |
+                Variable    | Type     | Value      |
+                ------------------------------      |
+                self        | MixedF...| *----------/
+
+
+This should look familiar, because it is the same thing as when we did
+`third.to_float()` before. However, the `MixedFractions` version of
+`to_float` is a whole lot different when it executes.
+
+Here's `MixedFraction`'s `to_float` for reference:
+
+{% highlight python linenos %}
+
+def to_float(self):
+    val = float(self.whole_num)
+            # float() is a built-in function that
+            # can convert integers to floats.
+
+    val += self.fraction_obj.to_float()
+            # ask the fraction for its floating point value!
+
+    return ret
+
+{% endhighlight %}
+
+First, on line 2, it gets the floating point of the whole number part
+and stores it to a variable cleverly named `val`.
+
+                                               ...     ...
+                                                |       |
+        /---------------------------------------)---+---/
+        |                                       |   |
+        V                                       |   |
+    <MixedFraction> object #1:                  |   |
+            Variable    | Type     | Value      |   |
+            ------------------------------      |   |
+            whole_num   | int      | 1          |   |
+            fraction_obj| Fraction | *----------/   |
+            to_float    | function |                |
+                                                    |
+                                                    |
+    Method call-> one_and_a_half.to_float():        |
+                Variable    | Type     | Value      |
+                ------------------------------      |
+                self        | MixedF...| *----------/
+                val         | float    | 1.0
+
+Then, on line 6, it does something we haven't seen before: double dots!
+But by now, you should be able to smell what The Rock cookin'.
+
+1. The first dot resolves `self` to the `MixedFraction` object.
+2. The second dot resolves `fraction_obj` to the `Fraction` object.
+3. Then, we ask *that* `Fraction` to execute *its* `to_float` method.
+
+By the time we've done all of that, we've got this mess:
+
+
+                                                   ... ...
+                                                    |   |
+        /---------------------------------------+---/   |
+        |                                       |       |
+        V                                       |       |
+    <Fraction> object #1:                       |       |
+            Variable    | Type     | Value      |       |
+            ------------------------------      +-------)---\
+            numerator   | int      | 1          |       |   |
+            denominator | int      | 2          |       |   |
+            to_float    | function |            |       |   |
+                                                |       |   |
+                                                |       |   |
+        /---------------------------------------)---+---/   |
+        |                                       |   |       |
+        V                                       |   |       |
+    <MixedFraction> object #1:                  |   |       |
+            Variable    | Type     | Value      |   |       |
+            ------------------------------      |   |       |
+            whole_num   | int      | 1          |   |       |
+            fraction_obj| Fraction | *----------/   |       |
+            to_float    | function |                |       |
+                                                    |       |
+                                                    |       |
+                                                    |       |
+    Method call-> one_and_a_half.to_float():        |       |
+                Variable    | Type     | Value      |       |
+                ------------------------------      |       |
+                self        | MixedF...| *----------/       |
+                val         | float    | 1.0                |
+                                                            |
+    Method call-------> self.fraction_obj.to_float()        |
+                        Variable    | Type     | Value      |
+                        ------------------------------      |
+                        self        | Fraction | *----------/
+
+UGH.
+
+We are talking about line 6 still. Note that the environment for this
+call has its *own* self within. That self is the `Fraction`. Thankfully
+this method doesn't do a whole whole lot and returns the `Fraction`
+represented as a floating point value pretty much immediately. So, that
+temporary environment is destroyed and we are left with this:
+
+                                               ...     ...
+                                                |       |
+        /---------------------------------------)---+---/
+        |                                       |   |
+        V                                       |   |
+    <MixedFraction> object #1:                  |   |
+            Variable    | Type     | Value      |   |
+            ------------------------------      |   |
+            whole_num   | int      | 1          |   |
+            fraction_obj| Fraction | *----------/   |
+            to_float    | function |                |
+                                                    |
+                                                    |
+    Method call-> one_and_a_half.to_float():        |
+                Variable    | Type     | Value      |
+                ------------------------------      |
+                self        | MixedF...| *----------/
+                val         | float    | 1.5
+
+Finally, we have our `MixedFraction` as a float, and this method call
+environment returns `val` and is destroyed. Now we can update our global
+environment with `z`:
+
+
+    global:
+            Variable        | Type     | Value
+            ----------------------------------
+            Fraction        | class    |
+            MixedFraction   | class    |
+            half            | Fraction | *----------\
+            one_and_a_half  | MixedF...| *----------)---\
+            z               | float    | 1.5        |   |
+                                                    |   |
+        /---------------------------------------+---/   |
+        |                                       |       |
+        V                                       |       |
+    <Fraction> object #1:                       |       |
+            Variable    | Type     | Value      |       |
+            ------------------------------      |       |
+            numerator   | int      | 1          |       |
+            denominator | int      | 2          |       |
+            to_float    | function |            |       |
+                                                |       |
+        /---------------------------------------)-------/
+        |                                       |
+        V                                       |
+    <MixedFraction> object #1:                  |
+            Variable    | Type     | Value      |
+            ------------------------------      |
+            whole_num   | int      | 1          |
+            fraction_obj| Fraction | *----------/
+            to_float    | function |
+
+Awesome.
+
+Inheritance
+===========
+
+What if we were drunk and decided to make `MixedFraction` inherit from
+`Fraction`? That seems like a totally reasonable thing to do, right?
+After all, isn't a mixed fraction just a special representation of
+a fraction?
+
+{% highlight python %}
+
+class MixedFraction(Fraction):
+    def __init__(self, whole_num, numerator, denominator):
+        new_num = numerator + (whole_num * denominator)
+        super().__init__(new_num, denominator)
+
+{% endhighlight %}
+
+And look at that, we are pretty much done! MixedFraction will inherit
+the Fraction version of to_float, and because of how we wrote our
+constructors everything will just *work*. So what about this `super()`
+business?
+
+Let's start with a clean environment and make ourselves a `MixedFraction`.
+
+{% highlight python %}
+
+one_and_a_half = MixedFraction(1, 1, 2)
+taco = one_and_a_half.to_float()
+
+{% endhighlight %}
+
+    global:
+            Variable        | Type     | Value
+            ----------------------------------
+            Fraction        | class    |
+            MixedFraction   | class    |
+
+    Method call-> MixedFraction.__init__(*, 1, 1, 2):
+                Variable    | Type     | Value
+                ------------------------------
+                self        | MixedF...| *------\
+                whole_num   | int      | 1      |
+                numerator   | int      | 1      |
+                denominator | int      | 2      |
+                                                |
+        /---------------------------------------/
+        |
+        V
+    <MixedFraction> object #1:
+            Variable    | Type     | Value
+            ------------------------------
+
+When its constructor begins executing, we calculate a `new_num` value
+that represents the whole number added back into the fraction's numerator.
+
+    Method call-> MixedFraction.__init__(*, 1, 1, 2):
+                Variable    | Type     | Value
+                ------------------------------
+                self        | MixedF...| *------\
+                whole_num   | int      | 1      |
+                numerator   | int      | 1      |
+                denominator | int      | 2      |
+                new_num     | int      | 3      |
+                                                |
+        /---------------------------------------/
+        |
+        V
+    <MixedFraction> object #1:
+            Variable    | Type     | Value
+            ------------------------------
+
+Alright, now things get cray cray. We make a call to `super()`, and then
+use the dot notation on that? What the...?
+
+Since it is just a function call, what does `super()` return?  Well,
+that's for another discussion, but it returns something we can just call
+the "super object". The super object is an object that we can ask, just
+as before, execute methods for us using methods *from the superclass of
+the object we are in*. It allows us to call methods that exist in both
+the class and the class inherited from.
+
+In this instance, `super()` can basically operate as an alias for
+`Fraction`, and as a way to tell Python how to use methods we have two of,
+such as the constructor.
+
+So, we make the call to the constructor of `Fraction`:
+
+    Method call-> MixedFraction.__init__(*, 1, 1, 2):
+                Variable    | Type     | Value
+                ------------------------------
+                self        | MixedF...| *----------\
+                whole_num   | int      | 1          |
+                numerator   | int      | 1          |
+                denominator | int      | 2          |
+                new_num     | int      | 3          |
+                                                    |
+    Method call----> Fraction.__init__(self, 3, 2)  |
+                    Variable    | Type     | Value  |
+                    ------------------------------  |
+                    self        | MixedF...| *------+
+                    numerator   | int      | 3      |
+                    denominator | int      | 2      |
+                                                    |
+        /-------------------------------------------/
+        |
+        V
+    <MixedFraction> object #1:
+            Variable    | Type     | Value
+            ------------------------------
+
+Now we begin execution of the constructor of `Fraction`. Notice now how
+the self within its environment is the `MixedFraction`! Baller! It
+completes and is destroyed, leaving us this:
+
+    Method call-> MixedFraction.__init__(*, 1, 1, 2):
+                Variable    | Type     | Value
+                ------------------------------
+                self        | MixedF...| *----------\
+                whole_num   | int      | 1          |
+                numerator   | int      | 1          |
+                denominator | int      | 2          |
+                new_num     | int      | 3          |
+                                                    |
+        /-------------------------------------------/
+        |
+        V
+    <MixedFraction> object #1:
+            Variable    | Type     | Value
+            ------------------------------
+            numerator   | int      | 3
+            denominator | int      | 2
+            to_float    | function |
+
+Anywhozzles, once the constructor of `MixedFraction` completes, we are
+left with an environment that looks like this:
+
+    global:
+            Variable        | Type     | Value
+            ----------------------------------
+            Fraction        | class    |
+            MixedFraction   | class    |
+            one_and_a_half  | MixedF...| *------\
+                                                |
+        /---------------------------------------/
+        |
+        V
+    <MixedFraction> object #1:
+            Variable    | Type     | Value
+            ------------------------------
+            numerator   | int      | 3
+            denominator | int      | 2
+            to_float    | function |
+
+Cool, right? Okay, my sandwich is here. Time to go. Until next time...
