@@ -649,7 +649,7 @@ pi_ish    = to_float(almost_pi)
             to_float    | function |            |   |   |
             many_three  | float    | 0.333...   |   |   |
             zero_five   | float    | 0.5        |   |   |
-            pi_ish      | float    | 0.314...   |   |   |
+            pi_ish      | float    | 3.14...   |   |   |
                                                 |   |   |
                                                ... ... ...
 
@@ -892,7 +892,7 @@ Let's make some MixedFractions and look at the environment.
 {% highlight python %}
 
 half = Fraction(1, 2)
-one_and_a_half = MixedFraction(1, a)
+one_and_a_half = MixedFraction(1, half)
 
 {% endhighlight %}
 
@@ -1072,10 +1072,11 @@ By the time we've done all of that, we've got this mess:
 UGH.
 
 We are talking about line 6 still. Note that the environment for this
-call has its *own* self within. That self is the `Fraction`. Thankfully
-this method doesn't do a whole whole lot and returns the `Fraction`
-represented as a floating point value pretty much immediately. So, that
-temporary environment is destroyed and we are left with this:
+call has its *own* `self` within. That `self` is the `Fraction`.
+Thankfully this method doesn't do a whole whole lot and returns the
+`Fraction` represented as a floating point value pretty much
+immediately. So, that temporary environment is destroyed and we are left
+with this:
 
                                                ...     ...
                                                 |       |
