@@ -198,7 +198,24 @@ p.feature-image img {
 .highlight {
     font-size: 0.8em;
     line-height: 1.1em;
-    margin: 1em 0;
+    margin: 0 0 0 3em;
+}
+
+.lineno {
+    font-size: 1.1em;
+    margin: 0 1em 0 0;
+    color: #f09;
+    background: #fff;
+}
+
+.in_prompt{
+    font-size: 0.5em;
+    color: #00a;
+}
+
+.output_prompt{
+    font-size: 0.5em;
+    color: #a00;
 }
 
 .content .source {
