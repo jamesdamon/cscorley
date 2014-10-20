@@ -26,7 +26,6 @@ tags:
 
 
 ![png](sampleScatter_files/sampleScatter_2_1.png)
-![png]({{ site.baseurl}}notebooks/sampleScatter_files/sampleScatter_2_1.png)
 
 
     plt.plot(z)
@@ -40,4 +39,3 @@ tags:
 
 
 ![png](sampleScatter_files/sampleScatter_3_1.png)
-![png]({{ site.baseurl}}notebooks/sampleScatter_files/sampleScatter_3_1.png)
